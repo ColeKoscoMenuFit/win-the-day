@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Win The Day Mail</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark">WTD</span>
+      <span class="brand-title">Mail</span>
+    </div>
+    <div class="account">{{ account }}</div>
+    <button id="refresh-btn" class="btn">Refresh</button>
+  </header>
+
+  <main id="board" class="board">
+    <section class="column" data-key="needs_reply">
+      <h2><span class="tag tag-reply">Needs Reply</span> <span class="count" data-count></span></h2>
+      <div class="cards" data-cards></div>
+    </section>
+    <section class="column" data-key="action">
+      <h2><span class="tag tag-action">Action</span> <span class="count" data-count></span></h2>
+      <div class="cards" data-cards></div>
+    </section>
+    <section class="column" data-key="fyi">
+      <h2><span class="tag tag-fyi">FYI</span> <span class="count" data-count></span></h2>
+      <div class="cards" data-cards></div>
+    </section>
+    <section class="column" data-key="newsletters">
+      <h2><span class="tag tag-news">Newsletters</span> <span class="count" data-count></span></h2>
+      <div class="cards" data-cards></div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast"></div>
+
+  <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
