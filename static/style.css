@@ -50,6 +50,7 @@ body {
 .brand-title { font-size: 18px; font-weight: 600; }
 
 .account { color: var(--muted); margin-left: auto; font-size: 13px; }
+.demo-badge { background: #ffb86b; color: #0f1115; font-size: 11px; padding: 3px 8px; border-radius: 4px; font-weight: 700; letter-spacing: 0.05em; }
 
 .btn {
   background: var(--surface-2);

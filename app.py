@@ -67,7 +67,7 @@ def index():
         me_email = gmail_client.get_profile_email(service())
     except Exception as e:
         return f"<h1>Setup error</h1><pre>{e}</pre>", 500
-    return render_template("dashboard.html", account=me_email)
+    return render_template("dashboard.html", account=me_email, demo=gmail_client.is_demo())
 
 
 @app.route("/api/emails")

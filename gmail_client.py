@@ -5,17 +5,25 @@ import os
 from email.mime.text import MIMEText
 from pathlib import Path
 
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
-from google_auth_oauthlib.flow import InstalledAppFlow
-from googleapiclient.discovery import build
-
 SCOPES = ["https://www.googleapis.com/auth/gmail.modify"]
 CREDENTIALS_FILE = Path(__file__).parent / "credentials.json"
 TOKEN_FILE = Path(__file__).parent / "token.json"
 
 
+def is_demo():
+    return os.environ.get("WTD_DEMO") == "1" or not CREDENTIALS_FILE.exists()
+
+
 def get_service():
+    if is_demo():
+        from mock_data import MockService
+        return MockService()
+
+    from google.auth.transport.requests import Request
+    from google.oauth2.credentials import Credentials
+    from google_auth_oauthlib.flow import InstalledAppFlow
+    from googleapiclient.discovery import build
+
     creds = None
     if TOKEN_FILE.exists():
         creds = Credentials.from_authorized_user_file(str(TOKEN_FILE), SCOPES)
@@ -24,11 +32,6 @@ def get_service():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            if not CREDENTIALS_FILE.exists():
-                raise FileNotFoundError(
-                    f"Missing {CREDENTIALS_FILE}. Download OAuth client credentials "
-                    "from Google Cloud Console (Desktop app type) and save as credentials.json."
-                )
             flow = InstalledAppFlow.from_client_secrets_file(str(CREDENTIALS_FILE), SCOPES)
             creds = flow.run_local_server(port=0)
         TOKEN_FILE.write_text(creds.to_json())
@@ -85,11 +88,15 @@ def _has_attachments(payload):
 
 
 def get_profile_email(service):
+    if hasattr(service, "get_email"):
+        return service.get_email()
     profile = service.users().getProfile(userId="me").execute()
     return profile.get("emailAddress", "")
 
 
 def list_unread(service, max_results=50):
+    if hasattr(service, "get_messages"):
+        return service.get_messages()
     me_email = get_profile_email(service)
     resp = (
         service.users()
@@ -132,6 +139,17 @@ def list_unread(service, max_results=50):
 
 
 def get_thread(service, thread_id):
+    if hasattr(service, "get_messages"):
+        for msg in service.get_messages():
+            if msg["thread_id"] == thread_id:
+                return [{
+                    "from": msg["from"],
+                    "to": msg["to"],
+                    "subject": msg["subject"],
+                    "date": msg["date"],
+                    "body": msg["body"],
+                }]
+        return []
     thread = service.users().threads().get(userId="me", id=thread_id, format="full").execute()
     out = []
     for msg in thread.get("messages", []):
@@ -148,6 +166,9 @@ def get_thread(service, thread_id):
 
 
 def send_reply(service, thread_id, to, subject, body, in_reply_to, references):
+    if hasattr(service, "get_messages"):
+        print(f"[DEMO] Would send to {to}: {body[:80]}...")
+        return {"id": "demo-sent", "threadId": thread_id}
     msg = MIMEText(body)
     msg["To"] = to
     msg["Subject"] = subject if subject.lower().startswith("re:") else f"Re: {subject}"
@@ -165,6 +186,8 @@ def send_reply(service, thread_id, to, subject, body, in_reply_to, references):
 
 
 def mark_read(service, message_id):
+    if hasattr(service, "get_messages"):
+        return {"id": message_id}
     return (
         service.users()
         .messages()

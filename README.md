@@ -49,6 +49,16 @@ The first run opens a browser to authorize Gmail access — sign in and grant th
 
 Open **http://localhost:5000** in your browser.
 
+### Preview without setup (demo mode)
+
+Want to see the UI before wiring up Gmail? Run:
+
+```bash
+WTD_DEMO=1 python app.py
+```
+
+This loads a fake inbox of 10 emails so you can poke at the dashboard. Set your `ANTHROPIC_API_KEY` to also see real Claude drafts; without it you'll get placeholder drafts. Demo mode also activates automatically if `credentials.json` is missing.
+
 ### What you can do
 
 - See all your unread inbox mail bucketed into 4 columns.

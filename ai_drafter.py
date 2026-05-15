@@ -53,7 +53,14 @@ def generate_draft(thread_id, thread_messages, me_email, force=False):
     user_content += "\n\nDraft a reply now. Output only the reply body."
 
     if not os.environ.get("ANTHROPIC_API_KEY"):
-        draft = "[Set ANTHROPIC_API_KEY in your .env to enable AI drafts.]"
+        last = thread_messages[-1] if thread_messages else {}
+        sender = (last.get("from") or "").split("<")[0].split("@")[0].strip() or "there"
+        draft = (
+            f"Thanks for your note, {sender.split()[0] if sender else 'there'}. "
+            f"Let me circle back with a proper response shortly.\n\n"
+            f"Thanks,\n\n"
+            f"[Demo draft — set ANTHROPIC_API_KEY to enable real AI drafts.]"
+        )
     else:
         response = _client().messages.create(
             model=MODEL,
